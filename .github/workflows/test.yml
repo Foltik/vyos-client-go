@@ -1,0 +1,50 @@
+name: Test
+on: push
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    # services:
+      # vyos:
+      #   image: foltik/vyos:rolling-latest
+      #   volumes:
+      #     - ${{ github.workspace }}/.github/workflows/config.boot:/opt/vyatta/etc/config.boot.default
+      #     - ${{ github.workspace }}/.github/workflows/selfsigned.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
+      #     - ${{ github.workspace }}/.github/workflows/selfsigned.key:/etc/ssl/private/ssl-cert-snakeoil.key
+      #     - /lib/modules:/lib/modules
+      #   options: >-
+      #     --health-cmd "curl -k -X POST https://localhost/retrieve -F data='{"op": "showConfig", "path": []}' -F key='vyos'"
+      #     --health-interval 10s
+      #     --health-timeout 5s
+      #     --health-retries 5
+      #     --privileged
+      #     --entrypoint /sbin/init
+
+    steps:
+      - name: Debug1
+        run: ls -la ${{ github.workspace }}
+      - name: Debug2
+        run: ls -la ${{ github.workspace }}/.github
+      - name: Debug3
+        run: ls -la ${{ github.workspace }}/.github/workflows
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Testing 123
+        run: |
+          curl -k -X POST https://vyos/retrieve \
+            -F data='{"op": "showConfig", "path": []}' \
+            -F key='vyos'
+
+      - name: Test
+        run: go test -v ./...
